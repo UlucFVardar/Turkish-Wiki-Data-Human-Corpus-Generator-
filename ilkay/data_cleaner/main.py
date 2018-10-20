@@ -10,7 +10,7 @@ def main():
         for line in f:
             if not line.startswith('\n') and line.endswith('\n'):
                 dc.process_bulk_paragraph(line.split("#")[4].strip())
-                print dc.clean_sentence, ''
+                print line.split("#")[0].strip(), '\n', dc.clean_sentence, ''
             else:
                 print '(:'
     f.close()

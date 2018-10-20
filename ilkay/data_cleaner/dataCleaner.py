@@ -1,6 +1,8 @@
 # -*- coding: UTF-8 -*-
 import re
 
+# re.sub(r"<ref(.|\n)*</ref>","",paragraph[i])
+
 class DataCleaner:
     def __init__(self):
         self.clean_sentence = ''
@@ -13,116 +15,105 @@ class DataCleaner:
         # open '\n'
         paragraph = data.replace("<nl>", "\n")
 
-        # delete '[[Dosya.*]]'
-        paragraph = re.sub(r"\[\[Dosya.*\]\]","",paragraph)
-        
-        # delete '<ref> *** </ref>'
-        lines_of_paragraph = paragraph.split("\n")
-        self.clean_ref_tag(lines_of_paragraph)
-        
-        
-        # After now sentence is obtained to work on it directly #
-        sentence = "".join(lines_of_paragraph)
-        
-        sentence = self.clean(sentence) # Uluc has added this clean method
-                                        # Need the check this part 
-                                        # [[ ... | ... ]]
 
-        # remove ' " ' and  " ' " in sentence
-        sentence = sentence.replace("'''",'').replace("''",'').replace('"','')
+        # delete '[[Dosya.*]]'
+        paragpah = self.clean_dosya(paragraph)
+        #print '__[Dosya...]] OK'
+
+        # delete <.*?>.*?</.*?> TAGS
+        paragraph = self.clean_tags_regex(paragraph)
+        #print '__Tags OK'
+
+        """ -------------------------- """
+        # After now sentence is obtained to work on it directly 
+
+        # Uluc has added this clean method
+        # Need the check this part 
+        # [[ ... | ... ]]
+        sentence = self.clean_pipes_in_double_square_brackets(paragraph) 
+        #print '__[[..|..]] OK'
+
+        # delete {{...}} double curly brackets
+        sentence = self.clean_double_curly_brackets(sentence)
+        #print '__{{...}} OK'
+
+        # delete (...) except with ( d. ... - o. ...) 
+        # It keeps birth day and death info 
+        """ISSUE here! Some dates in brackets are represented not with d. or o."""
+        sentence = self.clean_round_brackets_except_with_birth_and_death(sentence)
+        #print '__(...) OK'
+
+        # delete [[...]] 
+        # except that includes numbers like birth date or death 
+        # ( i.e. [[5 Mayis]] [[1818]] )
+        sentence = self.clean_double_square_brackets(sentence)
+        #print '__ ( [[...]] ) OK'
 
         # remove ==...== double equations from the sentence
         sentence =  self.clean_double_equation_mark(sentence)
+        #print '__ ==...== OK'
+
         
         # to be continued ...
+       
+        
+        # remove ' " ' and  " ' " in sentence
+        try:
+            sentence = sentence.replace("'''",'').replace("''",'').replace('"','')
+        except:
+            pass
+        #print """ '__ " "  ' ' OK """
 
+        
+        #-------------------------Cleaning finished------------------------------------
+       
         # Here is the cleaned sentence. Ready to write into output text file
         self.clean_sentence = sentence
-    
-    def clean_ref_tag(self, paragraph):
-        '''
-            paragraph: it is a sentencering with '\n'. 
-                    Thus, it's able to be porcessed 
-                    line by line here.
-        '''
-        for i,line in enumerate(paragraph):
-            open_ref = 0
-            close_ref = 0
 
-            # count 'em all in the line
-            if '<ref' in line:
-                open_ref = line.count("<ref")
-            if '</ref>' in line:
-                close_ref = line.count("</ref>")
+    def clean_dosya(self, data):
+        try:
+            return re.sub(r"\[\[Dosya.*\]\]","",paragraph)
+        except:
+            return data
 
+    def clean_pipes_in_double_square_brackets(self, data):
+        try:
+            return '[[' + re.sub(r"\[\[.*?\|","",data)
+        except:
+            return data
+        
+    def clean_double_equation_mark(self, data): #==
+        try:
+            return re.sub(r"==.*?==","", data)
+        except:
+            return data
 
-            # if there are many opened and closed 'ref' tags
+    def clean_tags_regex(self,data):
+        try:
+           data = re.sub(r"((<br />.*?<br />|<br />)|(<br>.*?<br>|<br>))","",data)
+        except:
+            data = data
+        try:
+            return re.sub(r"^.*?<[/].*?>|<.*?(.|\s)*?</.*?>|<.*?(.|\s)*","",data)
+        except:
+            return data
 
-            # open > close
-            if open_ref > close_ref:
-                while(open_ref > 0 and close_ref > 0):
-                    o_index = line.find('<ref')
-                    c_index = line.find('</ref>')
-                    if o_index < c_index:
-                        firsentence_part = line[:line.find('<ref')]
-                        second_part = line[line.find('</ref>')+6:]
-                        paragraph[i] = firsentence_part + second_part
-                        line = paragraph[i]
-                        open_ref-=1
-                        close_ref-=1
-                o_index = line.find('<ref')
-                paragraph[i] = line[:line.find('<ref')]
+    def clean_double_curly_brackets(self,data):
+        try:
+            return re.sub(r"{{.*?(.|\s).*?}}","",data)
+        except:
+            return data
 
-            # closed > opened
-            if close_ref > open_ref:
-                paragraph[i] = line[line.find('</ref>')+6:]
-                line = paragraph[i]
-                close_ref-=1
-                while(open_ref > 0 and close_ref > 0):
-                    o_index = line.find('<ref')
-                    c_index = line.find('</ref>')
-                    if o_index < c_index:
-                        firsentence_part = line[:line.find('<ref')]
-                        second_part = line[line.find('</ref>')+6:]
-                        paragraph[i] = firsentence_part + second_part
-                        line = paragraph[i]
-                        open_ref-=1
-                        close_ref-=1
+    def clean_round_brackets_except_with_birth_and_death(self, data):
+        try:
+            data = re.sub(r"\([^d]\.*.?(.|\s).*?[^o]\.*.?(.|\s).*?\)","",data)
+            return re.sub(r"(;.*?\)(.|\s)*?;.*?\)|;.*?\))","",data)
+        except:
+            return data
 
-            # (open = close) and > 1 
-            if open_ref > 1 and close_ref > 1:
-                while(open_ref > 1 and close_ref > 1):
-                    o_index = line.find('<ref')
-                    c_index = line.find('</ref>')
-                    if o_index < c_index:
-                        firsentence_part = line[:line.find('<ref')]
-                        second_part = line[line.find('</ref>')+6:]
-                        paragraph[i] = firsentence_part + second_part
-                        open_ref-=1
-                        close_ref-=1
+    def clean_double_square_brackets(self, data):
+        try:
+            return re.sub(r"\(.*?\[\[[\D].*?\]\].*?\)","",data).replace('[[','').replace(']]','')
+        except:
+            return data
 
-            # for 1 opened and 1 closed tags
-            if open_ref == 1 and close_ref == 1:
-                paragraph[i] = re.sub(r"<ref(.|\n)*</ref>","",paragraph[i])
-
-    def clean(self, sentence):
-        paragraph = sentence.split('[[')
-        for i in range(0,len(paragraph)):
-            try:
-                paragraph[i] = '[['+(re.search(".*\|(.*\]\].* )",paragraph[i])).group(1)+" "
-            except Exception as e:
-                if i == 0:
-                    pass
-                else:
-                    paragraph[i] = '[['+paragraph[i]
-                pass
-        return  ''.join(paragraph)
-
-    def clean_double_equation_mark(self, sentence): #==
-        '''
-            sentence: it is literally the sentence
-                    that is desired to be obtained 
-        '''
-        if '==' in sentence:
-            return sentence[:sentence.find('==')]
-        return sentence
