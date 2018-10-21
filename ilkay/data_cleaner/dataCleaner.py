@@ -17,7 +17,7 @@ class DataCleaner:
 
 
         # delete '[[Dosya.*]]'
-        paragpah = self.clean_dosya(paragraph)
+        paragraph = self.clean_dosya(paragraph)
         #print '__[Dosya...]] OK'
 
         # delete <.*?>.*?</.*?> TAGS
@@ -40,7 +40,7 @@ class DataCleaner:
         # delete (...) except with ( d. ... - o. ...) 
         # It keeps birth day and death info 
         """ISSUE here! Some dates in brackets are represented not with d. or o."""
-        sentence = self.clean_round_brackets_except_with_birth_and_death(sentence)
+        #sentence = self.clean_round_brackets_except_with_birth_and_death(sentence)
         #print '__(...) OK'
 
         # delete [[...]] 
@@ -72,7 +72,7 @@ class DataCleaner:
 
     def clean_dosya(self, data):
         try:
-            return re.sub(r"\[\[Dosya.*\]\]","",paragraph)
+            return re.sub(r"\[\[Dosya.*\]\]","",data)
         except:
             return data
 
@@ -94,7 +94,7 @@ class DataCleaner:
         except:
             data = data
         try:
-            return re.sub(r"^.*?<[/].*?>|<.*?(.|\s)*?</.*?>|<.*?(.|\s)*","",data)
+            return re.sub(r"<.*?\/>|<.*?</.*?>","",data)#re.sub(r"^.*?<[/].*?>|<.*?(.|\s)*?</.*?>|<.*?(.|\s)*","",data)
         except:
             return data
 
