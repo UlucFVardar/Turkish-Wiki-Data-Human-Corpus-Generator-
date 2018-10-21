@@ -46,7 +46,7 @@ class DataCleaner:
         # delete [[...]] 
         # except that includes numbers like birth date or death 
         # ( i.e. [[5 Mayis]] [[1818]] )
-        sentence = self.clean_double_square_brackets(sentence)
+        #sentence = self.clean_double_square_brackets(sentence)
         #print '__ ( [[...]] ) OK'
 
         # remove ==...== double equations from the sentence
@@ -78,7 +78,7 @@ class DataCleaner:
 
     def clean_pipes_in_double_square_brackets(self, data):
         try:
-            return '[[' + re.sub(r"\[\[.*?\|","",data)
+            return re.sub(r"\[\[.*?\|","",data).replace(']]','').replace('[[','')
         except:
             return data
         
@@ -104,16 +104,21 @@ class DataCleaner:
         except:
             return data
 
+
+    # Cancelled for now
     def clean_round_brackets_except_with_birth_and_death(self, data):
+        # Cancelled for now
         try:
             data = re.sub(r"\([^d]\.*.?(.|\s).*?[^o]\.*.?(.|\s).*?\)","",data)
             return re.sub(r"(;.*?\)(.|\s)*?;.*?\)|;.*?\))","",data)
         except:
             return data
 
+    # Cancelled for now
     def clean_double_square_brackets(self, data):
+        # Cancelled for now
         try:
-            return re.sub(r"\(.*?\[\[[\D].*?\]\].*?\)","",data).replace('[[','').replace(']]','')
+            return re.sub(r"\(.*\)","",data).replace(']]','') # \(.*\) # \(.*?\[\[[\D].*?\]\].*?\)
         except:
             return data
 
