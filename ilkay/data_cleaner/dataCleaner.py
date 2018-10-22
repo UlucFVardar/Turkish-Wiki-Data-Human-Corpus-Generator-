@@ -70,6 +70,7 @@ class DataCleaner:
         # Here is the cleaned sentence. Ready to write into output text file
         self.clean_sentence = sentence
 
+
     def clean_dosya(self, data):
         try:
             return re.sub(r"\[\[Dosya.*\]\]","",data)
@@ -78,9 +79,9 @@ class DataCleaner:
 
     def clean_pipes_in_double_square_brackets(self, data):
         try:
-            return re.sub(r"\[\[.*?\|","",data).replace(']]','').replace('[[','')
+            return re.sub(r"\[\[[^\[]*\|","",data).replace('[','').replace(']','') # \[\[.*?\|
         except:
-            return data
+            return data.replace(']','').replace('[','')
         
     def clean_double_equation_mark(self, data): #==
         try:
