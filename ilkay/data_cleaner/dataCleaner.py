@@ -15,63 +15,55 @@ class DataCleaner:
         # open '\n'
         paragraph = data.replace("<nl>", "\n")
 
-
         # delete '[[Dosya.*]]'
         paragraph = self.clean_dosya(paragraph)
-        #print '__[Dosya...]] OK'
 
         # delete <.*?>.*?</.*?> TAGS
         paragraph = self.clean_tags_regex(paragraph)
-        #print '__Tags OK'
 
-        """ -------------------------- """
+
+        """ --- --- --- --- --- --- --- --- --- --- """
+
         # After now sentence is obtained to work on it directly 
 
         # Uluc has added this clean method
         # Need the check this part 
         # [[ ... | ... ]]
         sentence = self.clean_pipes_in_double_square_brackets(paragraph) 
-        #print '__[[..|..]] OK'
 
         # delete {{...}} double curly brackets
         sentence = self.clean_double_curly_brackets(sentence)
-        #print '__{{...}} OK'
 
         # delete (...) except with ( d. ... - o. ...) 
         # It keeps birth day and death info 
         """ISSUE here! Some dates in brackets are represented not with d. or o."""
         sentence = self.clean_round_brackets_except_with_birth_and_death(sentence)
-        #print '__(...) OK'
-
+        
+        """
         # delete [[...]] 
         # except that includes numbers like birth date or death 
         # ( i.e. [[5 Mayis]] [[1818]] )
         #sentence = self.clean_double_square_brackets(sentence)
-        #print '__ ( [[...]] ) OK'
+        """
 
         # remove ==...== double equations from the sentence
         sentence =  self.clean_double_equation_mark(sentence)
-        #print '__ ==...== OK'
 
         # delete unnecessary infos in before bday in brackets (..... d. 1982) 
         sentence = self.clean_unnecessary_info_before_bday_in_round_brackets(sentence)
-        
-
+       
+        # remove ' """ ' and  " ''' " in sentence
+        sentence = self.clean_triple_quoates(sentence)
+    
+        # get rid of extra paragraphs
+        sentence = self.clean_extra_paragraphs(sentence)
 
         # to be continued ...
-       
-        
-        # remove ' " ' and  " ' " in sentence
-        try:
-            sentence = sentence.replace("'''",'').replace("''",'').replace('"','')
-        except:
-            pass
-        #print """ '__ " "  ' ' OK """
-
-        sentence = self.clean_extra_paragraphs(sentence)
         
         #-------------------------Cleaning finished------------------------------------
-       
+
+
+
         # Here is the cleaned sentence. Ready to write into output text file
         self.clean_sentence = sentence
 
@@ -152,8 +144,22 @@ class DataCleaner:
         except:
             return data
 
+    def clean_triple_quoates(self, data):
+        try:
+            return data.replace("'''",'').replace("''",'').replace('"','')
+        except:
+            return data
+
     def clean_extra_paragraphs(self, data):
         try:
             return data.strip().split('\n')[0]
         except:
             return data
+
+    # NOT USED YET
+    def split_sentences(self, data):
+        try:
+            sentences_list = re.findall(r"[^\.]*[\.]", data)
+            return sentences_list
+        except:
+            return [data]
