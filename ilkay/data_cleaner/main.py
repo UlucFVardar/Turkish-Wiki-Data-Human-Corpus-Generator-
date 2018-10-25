@@ -13,6 +13,7 @@ def main():
                 print line.split("#")[0].strip(), '\n', dc.clean_sentence, ''
             else:
                 print '(:'
+            
     f.close()
 
  

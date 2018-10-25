@@ -40,7 +40,7 @@ class DataCleaner:
         # delete (...) except with ( d. ... - o. ...) 
         # It keeps birth day and death info 
         """ISSUE here! Some dates in brackets are represented not with d. or o."""
-        #sentence = self.clean_round_brackets_except_with_birth_and_death(sentence)
+        sentence = self.clean_round_brackets_except_with_birth_and_death(sentence)
         #print '__(...) OK'
 
         # delete [[...]] 
@@ -53,6 +53,7 @@ class DataCleaner:
         sentence =  self.clean_double_equation_mark(sentence)
         #print '__ ==...== OK'
 
+        sentence = self.clean_unnecessary_info_before_bday_in_round_brackets(sentence)
         
         # to be continued ...
        
@@ -79,7 +80,7 @@ class DataCleaner:
 
     def clean_pipes_in_double_square_brackets(self, data):
         try:
-            return re.sub(r"\[\[[^\[]*\|","",data).replace('[','').replace(']','') # \[\[.*?\|
+            return re.sub(r"\[\[[^\[\{]*\|","",data).replace('[','').replace(']','') # \[\[.*?\|
         except:
             return data.replace(']','').replace('[','')
         
@@ -101,19 +102,30 @@ class DataCleaner:
 
     def clean_double_curly_brackets(self,data):
         try:
-            return re.sub(r"{{.*?(.|\s).*?}}","",data)
+            return re.sub(r"\(({{.*?(.|\s).*?}})\)|({{.*?(.|\s).*?}})","",data)
         except:
             return data
 
-
-    # Cancelled for now
     def clean_round_brackets_except_with_birth_and_death(self, data):
+        try:
+            if 'okunusu:' in data:
+                data = re.sub(r"\(okunusu:\s.* +sayfalar:.*\)","", data)
+            if 'd.' in data:
+                try:
+                    return data.replace(';','')
+                except:
+                    pass
+            return data #re.sub(r"\(.*[^\)]*;\s\)|\(.*; ","",data)
+        except:
+            return data
+        """
         # Cancelled for now
         try:
             data = re.sub(r"\([^d]\.*.?(.|\s).*?[^o]\.*.?(.|\s).*?\)","",data)
             return re.sub(r"(;.*?\)(.|\s)*?;.*?\)|;.*?\))","",data)
         except:
             return data
+        """
 
     # Cancelled for now
     def clean_double_square_brackets(self, data):
@@ -123,3 +135,17 @@ class DataCleaner:
         except:
             return data
 
+    def clean_unnecessary_info_before_bday_in_round_brackets(self, data):
+        # i.e.
+        # Gulse Birsel (evlilik oncesi soyadi sener d. 11 Mart 1971), Turk oyuncu, senarist ve gazeteci.
+        # Gulse Birsel ( d. 11 Mart 1971), Turk oyuncu, senarist ve gazeteci.
+        try:
+            matches = re.findall(r"\((.*)d\.",data)
+            if matches[0] != ' ' and matches != '\t':
+                return data.replace(matches[0],"")
+            else:
+                return data
+        except:
+            return data
+
+#\(okunusu:\s.* +sayfalar:.*\)
