@@ -53,8 +53,11 @@ class DataCleaner:
         sentence =  self.clean_double_equation_mark(sentence)
         #print '__ ==...== OK'
 
+        # delete unnecessary infos in before bday in brackets (..... d. 1982) 
         sentence = self.clean_unnecessary_info_before_bday_in_round_brackets(sentence)
         
+
+
         # to be continued ...
        
         
@@ -65,6 +68,7 @@ class DataCleaner:
             pass
         #print """ '__ " "  ' ' OK """
 
+        sentence = self.clean_extra_paragraphs(sentence)
         
         #-------------------------Cleaning finished------------------------------------
        
@@ -94,7 +98,7 @@ class DataCleaner:
         try:
            data = re.sub(r"((<br />.*?<br />|<br />)|(<br>.*?<br>|<br>))","",data)
         except:
-            data = data
+            pass
         try:
             return re.sub(r"<.*?\/>|<.*?</.*?>","",data)#re.sub(r"^.*?<[/].*?>|<.*?(.|\s)*?</.*?>|<.*?(.|\s)*","",data)
         except:
@@ -148,4 +152,8 @@ class DataCleaner:
         except:
             return data
 
-#\(okunusu:\s.* +sayfalar:.*\)
+    def clean_extra_paragraphs(self, data):
+        try:
+            return data.strip().split('\n')[0]
+        except:
+            return data
