@@ -21,7 +21,7 @@ public class SentenceSplitter {
 
     public static void main(String[] args) {
         String readableFilePath = "../../outputs/output.txt";
-        String writableFilePath = "../../outputs/splitted_outputs.txt";
+        String writableFilePath = "../../outputs/splitted_outputs_v2.txt";
 
         try {
             // Reader
@@ -39,16 +39,21 @@ public class SentenceSplitter {
                 if ("".equals(line.trim()) == false) {
                     try {
                         Integer.parseInt(line);
-                        pw.println("Artcl No: " + line);
+                        pw.print(line + "#");
                     } catch (NumberFormatException e) {
 
                         List<String> sentences = simpleSentenceBoundaryDetector(line);
-                        counter = 1;
+                        counter = 0;
+                        int len = sentences.size()-1;
                         for (String sentence : sentences) {
-                            pw.println(counter + ". " + sentence);
+                            if (counter == len) {
+                                pw.print(sentence);
+                            } else {
+                                pw.print(sentence + "#");
+                            }
                             counter++;
                         }//for end
-                        pw.println("\n");
+                        pw.print("\n");
 
                     }// catch end
                 }// if end

@@ -1,8 +1,6 @@
 # -*- coding: UTF-8 -*-
 import re
 
-# re.sub(r"<ref(.|\n)*</ref>","",paragraph[i])
-
 class DataCleaner:
     def __init__(self):
         self.clean_sentence = ''
@@ -59,13 +57,16 @@ class DataCleaner:
         sentence = self.clean_extra_paragraphs(sentence)
 
         # to be continued ...
-        
+
         #-------------------------Cleaning finished------------------------------------
+        if sentence == '':
+            self.clean_sentence = 'None'
+        elif '{' in sentence or '}' in sentence or '|' in sentence:
+            self.clean_sentence = 'None-Bracket faulty'
+        else:
+            # Here is the cleaned sentence. Ready to write into output text file
+            self.clean_sentence = sentence
 
-
-
-        # Here is the cleaned sentence. Ready to write into output text file
-        self.clean_sentence = sentence
 
 
     def clean_dosya(self, data):
