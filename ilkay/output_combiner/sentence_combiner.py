@@ -50,7 +50,7 @@ def main(splitted_output, data_wo_end_of_line, output):
                     #print line_parts[0], '\n1. ', first_sentence, '\n2. ',second_sentence, '\n'
                     sentences['s1'] = first_sentence
                     sentences['s2'] = second_sentence
-                    output_f.write(line_parts[0] + '#' + line2.split("#")[2] + "#" + line2.split("#")[3] + "#" + json.dumps(sentences) + '\n')
+                    output_f.write(line_parts[0] + '#' + line2.split("#")[2] + "#" + line2.split("#")[3] + "#" + json.dumps(sentences ,ensure_ascii=False, encoding='utf8').encode('utf-8') + '\n')
             output_f.close()
         original_f.close()
     splitted_f.close()
@@ -59,7 +59,11 @@ def main(splitted_output, data_wo_end_of_line, output):
 
 
 if __name__ == "__main__":
+    article_path ='/Users/uluc/Desktop/Bitirme/Wikiparse_WorkSpace/<2018.10.-->Wiki/compressed_original_data.txt'
+
     main("../outputs/splitted_outputs_v2.txt",
-    "../data/compressed_original_data.txt",
+    article_path,
     "../outputs/combined_sentences.txt"
     )
+
+
