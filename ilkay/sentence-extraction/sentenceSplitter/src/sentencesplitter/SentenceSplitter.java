@@ -1,10 +1,8 @@
 package sentencesplitter;
 
 import java.util.List;
-import zemberek.core.logging.Log;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import java.io.*;
-import java.lang.System.*;
 
 /**
  *
