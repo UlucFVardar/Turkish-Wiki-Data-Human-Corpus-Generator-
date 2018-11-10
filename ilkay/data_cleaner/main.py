@@ -6,7 +6,7 @@ def main():
     print '\n\n'
 
     dc = DC()
-    with open("../data/O4_2018-10-06_articles-allwere alooking.txt", "r") as f:
+    with open("/Users/uluc/Desktop/Bitirme/Wikiparse_WorkSpace/<2018.10.-->Wiki/<2018-11-11>Clean_data.txt", "r") as f:
         with open("../outputs/output.txt","w") as o_f:
             for line in f:
                 if not line.startswith('\n') and line.endswith('\n'):
