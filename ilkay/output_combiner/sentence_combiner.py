@@ -50,7 +50,11 @@ def main(splitted_output, data_wo_end_of_line, output):
                     #print line_parts[0], '\n1. ', first_sentence, '\n2. ',second_sentence, '\n'
                     sentences['s1'] = first_sentence
                     sentences['s2'] = second_sentence
+<<<<<<< HEAD
                     output_f.write(line_parts[0] + '#' + line2.split("#")[2] + "#" + line2.split("#")[3] + "#" + json.dumps(sentences ,ensure_ascii=False, encoding='utf8').encode('utf-8') + '\n')
+=======
+                    output_f.write(line_parts[0] + '#' + line2.split("#")[2] + "#" + line2.split("#")[3] + "#" + json.dumps(sentences ensure_ascii=False, encoding='utf8').encode('utf-8') + '\n')
+>>>>>>> master
             output_f.close()
         original_f.close()
     splitted_f.close()
