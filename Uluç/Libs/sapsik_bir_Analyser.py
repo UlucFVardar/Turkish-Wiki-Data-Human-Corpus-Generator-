@@ -15,7 +15,15 @@ number_of_infobox_type_rep4 = aaa.draw_Repetition_of_all_InfoBoxTypes(output_pat
                   title = 'Wiki Dump Data InfoBox Types and Repetitions (>100)',
                   min_repetition = 100 )
 
-# after clean json's                  
+# decide types 
+# after clean json's   
+
+
+aaa.count_data_fields()
+aaa.save_allCounts_2_file(log.get_output_path())
+aaa.save_Counts_for_types(log.get_output_path())
+aaa.save_uniq_fields(log.get_output_path())
+aaa.save_dataField_Analysis(log.get_output_path())          
 
 '''
 
@@ -25,6 +33,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import json
 import os 
+from file_commander import Article
+
 class Article_Analyser():
     def __init__(self,articles):
         self.articles = articles
@@ -32,8 +42,11 @@ class Article_Analyser():
         
     def calculate_all_uniq_infoBoxTypes(self):
         c = Counter()
-        for article in self.articles:
-            infoBox_type = article.article['infoBox_type'].decode('utf-8')
+        for a in self.articles:
+            try:
+                infoBox_type = a.article['infoBox_type'].decode('utf-8')
+            except Exception as e:
+                continue
             try:
                 c[infoBox_type] +=1
             except Exception as e:
@@ -52,7 +65,10 @@ class Article_Analyser():
         counter_of_fields = {}
 
         for a in self.articles:
-            type_ = a.article['infoBox_type'].decode('utf-8')
+            try:
+                type_ = a.article['infoBox_type'].decode('utf-8')
+            except Exception as e:
+                continue            
             try:
                 counter_of_fields[type_]['count'] += Counter(a.article['clean_infoBox'].keys())
                 counter_of_fields[type_]['number'] += 1 
@@ -73,7 +89,6 @@ class Article_Analyser():
         aa = '#Info Box Types : {}, #Total article with infoBox: {}\n\n'.format(len(self.counter_of_fields.keys()),number)
         a = json.dumps( allCounters.most_common() , ensure_ascii=False, encoding='utf8',indent = 4).encode('utf-8')
         self.allCounters = allCounters
-        print aa+a
         f.write(aa)
         f.write(a)
         f.close()
@@ -114,12 +129,8 @@ class Article_Analyser():
             f.write(json.dumps(result, ensure_ascii=False, encoding='utf8',indent = 4).encode('utf-8'))
 
     def save_dataField_Analysis(self,output_path):
-
-        # çıktı göresterme
         f= open(output_path+'Counts2.txt',"w")
-        f.close()
         for i in self.counter_of_fields.keys():
-            f= open(output_path+'Counts2.txt',"ab")
             a = []
             for j in self.counter_of_fields[i]['count'].most_common(10):
                 y = self.counter_of_fields[i]['number']
@@ -128,14 +139,13 @@ class Article_Analyser():
                             .replace('"','').replace(',',':').strip()
                 bb = int(b.split(':')[1].strip())
                 a.append( ('%26s|')%( b ))
-            u = unicode(i, "utf-8")
-            ab = u.rjust(22,' ')+str(self.counter_of_fields[i]['number']).rjust(6,' ')+' ->'
-            ab = ab.encode('utf8')
+            u = str(i.encode('utf-8'))
+            ab = '%26s -> %6s' % (i,str(self.counter_of_fields[i]['number']))
             for bb in a:
-                ab += bb.encode('utf-8')
-            f.write(ab)
+                ab += bb
+            f.write(ab.encode('utf-8'))
             f.write('\n') 
-        
+
         # çıktı göresterme
         f.write('\n')
         for i in self.counter_of_fields.keys():
@@ -147,12 +157,11 @@ class Article_Analyser():
                             .replace('"','').replace(',',':').strip()
                 bb = int(b.split(':')[1].strip())
                 a.append( ('%20s: %.2f|')%( b.split(':')[0].strip(),bb/float(y) ))
-            u = unicode(i, "utf-8")
-            ab = u.rjust(22,' ')+str(self.counter_of_fields[i]['number']).rjust(6,' ')+' ->'
-            ab = ab.encode('utf8')
+            u = str(i.encode('utf-8'))
+            ab = '%26s -> %6s' % (i,str(self.counter_of_fields[i]['number']))
             for bb in a:
-                ab += bb.encode('utf-8')
-            f.write(ab)
+                ab += bb
+            f.write(ab.encode('utf-8'))
             f.write('\n')
 
         # çıktı göresterme
@@ -170,11 +179,10 @@ class Article_Analyser():
                 else:
                     a.append( ('%26s|')%( '' ))
             u = str(i.encode('utf-8'))
-            ab = '%36s -> %6s\n' % (i,str(self.counter_of_fields[i]['number']))
-            ab = ab.encode('utf8')
+            ab = '%26s -> %6s' % (i,str(self.counter_of_fields[i]['number']))
             for bb in a:
-                ab += bb.encode('utf-8')
-            f.write(ab)
+                ab += bb
+            f.write(ab.encode('utf-8'))
             f.write('\n') 
         f.write('\n\nGenel durum\n')    
         total = ('%25s|')%(json.dumps(self.allCounters.most_common(20), ensure_ascii=False, encoding='utf8').\
@@ -182,13 +190,6 @@ class Article_Analyser():
                             .replace('"','').replace(',',':').strip() )
         f.write(total.encode('utf-8'))
         f.close()
-
-
-    
-
-
-
-
 
     # --------------------------------
 
