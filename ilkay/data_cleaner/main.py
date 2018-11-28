@@ -1,30 +1,25 @@
 # -*- coding: UTF-8 -*-
 
-from dataCleaner import DataCleaner as DC
+from dataCleaner import process_bulk_paragraph, set_environment, clear_environment
 
 def main():
-    print '\n\n'
 
-    dc = DC()
-    with open("/Users/uluc/Desktop/Bitirme/Wikiparse_WorkSpace/<2018.10.-->Wiki/<2018-11-11>Clean_data.txt", "r") as f:
-        with open("../outputs/output.txt","w") as o_f:
-            for line in f:
-                if not line.startswith('\n') and line.endswith('\n'):
-                    dc.process_bulk_paragraph(line.split("#")[4].strip())
-                    #print line.split("#")[0].strip(), '\n', dc.clean_sentence
-                    o_f.write( line.split("#")[0].strip() + '\n' + dc.clean_sentence + '\n\n')
-        o_f.close()
-    f.close()
+    # Sample usage of dataCleaner.py
     
+    set_environment() # create outputs folder to work in with temporary text files
+
+    # process the bulk data
+    """ 
+        @sentences: a tuple that includes (first_sentence, second_sentence)
+        @AckMessage: it is a acknowladgement message from dataCleaner.py. You can check if there is a problem by AckMessage to understand problems
     """
-    with open("../data/O4_2018-10-06_articles-allwere alooking.txt", "r") as f:
-        with open("../data/compressed_original_data.txt","w") as o_f:
-            for line in f:
-                if not line.startswith('\n') and line.endswith('\n'):
-                    o_f.write(line)
-        o_f.close()
-    f.close()
-    """
- 
+    sentences, AckMessage = process_bulk_paragraph("Cengiz Han (d. 1162 – ö. 18 Ağustos 1227), Moğol komutan, hükümdar ve Moğol İmparatorluğu'nun kurucusudur. Cengiz Han, 13. Yüzyılın başında Orta Asya'daki tüm göçebe bozkır kavimlerini birleştirerek bir ulus haline getirdi ve o ulusu Moğol siyasi kimliği çatısı altında topladı. Dünya tarihinin en büyük askeri dehalarından biri olarak kabul edilen Cengiz Han, hükümdarlığı döneminde 1206-1227 arasında Kuzey Çin'deki Batı Xia ve Jin Hanedanı, Türkistan'daki Kara Hıtay, Maveraünnehir, Harezm, Horasan ve İran'daki Harzemşahlar ile Kafkasya'da Gürcüler, Deşt-i Kıpçak'taki Rus Knezlikleri ve Kıpçaklar ile İdil Bulgarları üzerine gerçekleştirilen seferler sonucunda Pasifik Okyanusu'ndan Hazar Denizi’ne ve Karadeniz'in kuzeyine kadar uzanan bir imparatorluk kurdu.")
+    
+    print sentences[0] 
+    print sentences[1]
+    print AckMessage
+    
+    clear_environment() # clear all temporary files
+
 if __name__ == '__main__':
     main()
