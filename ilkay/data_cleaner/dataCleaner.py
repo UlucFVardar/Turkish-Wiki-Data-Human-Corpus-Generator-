@@ -1,5 +1,7 @@
 # -*- coding: UTF-8 -*-
 # encoding=utf8  
+# @author: İlkay Devran
+
 import sys  
 reload(sys)  
 sys.setdefaultencoding('utf8')
