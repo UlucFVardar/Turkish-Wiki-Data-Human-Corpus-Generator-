@@ -65,9 +65,9 @@ def process_bulk_paragraph( data):
     #-------------------------Cleaning finished------------------------------------
 
     if sentence == '':
-        return None, '[dataCleaner, line 62] Error: Sentence is NULL.'
+        return sentence, ('None','None'), '[dataCleaner, line 62] Error: Sentence is NULL.'
     elif '{' in sentence or '}' in sentence or '|' in sentence:
-        return None, '[dataCleaner, line 64] Error: Bracket faulty. There are some cruly brackets in sentence in a wrong way.'
+        return sentence, ('None','None'), '[dataCleaner, line 64] Error: Bracket faulty. There are some cruly brackets in sentence in a wrong way.'
     else:
         return flow(sentence)
 
@@ -174,6 +174,7 @@ def set_environment():
     os.system("mkdir outputs")
     os.system("export CLASSPATH=zemberek-full.jar:$CLASSPATH")
     os.system("javac -cp zemberek-full.jar SentenceSplitter.java")
+    #os.system("./setEnv.sh")
 
 def clear_environment():
     os.system("rm -r outputs")
@@ -196,7 +197,7 @@ def flow(sentence):
     # remove text files
     os.system("rm outputs/output.txt outputs/zemberek_output.txt")
 
-    return (f_sent.encode("utf-8"), s_sent.encode("utf-8")), '[dataCleaner, line 190] Everything is OK.'
+    return sentence.strip(), (f_sent.encode("utf-8"), s_sent.encode("utf-8")), '[dataCleaner, line 190] Everything is OK.'
 
 
 # ----------------------- Sentence Combiner part -----------------------
@@ -209,7 +210,7 @@ def fixZemberekOutput(zemberek_output_path):
         for line in f:
             line_parts = line.strip().split('#')
             first_sentence = line_parts[0]
-            second_sentence = ''
+            second_sentence = 'None'
             sentences = {}
             d_flag = False
             o_flag = False
@@ -243,14 +244,3 @@ def fixZemberekOutput(zemberek_output_path):
             #print '\n1. ', first_sentence, '\n2. ',second_sentence, '\n'       
     f.close()
     return (first_sentence, second_sentence)
-
-
-
-if __name__ == "__main__":
-    print "### dataCleaner.py [MAIN] sample ###"
-    print process_bulk_paragraph("Cengiz Han (d. 1162 – ö. 18 Ağustos 1227), Moğol komutan, hükümdar ve Moğol İmparatorluğu'nun kurucusudur. Cengiz Han, 13. Yüzyılın başında Orta Asya'daki tüm göçebe bozkır kavimlerini birleştirerek bir ulus haline getirdi ve o ulusu Moğol siyasi kimliği çatısı altında topladı. Dünya tarihinin en büyük askeri dehalarından biri olarak kabul edilen Cengiz Han, hükümdarlığı döneminde 1206-1227 arasında Kuzey Çin'deki Batı Xia ve Jin Hanedanı, Türkistan'daki Kara Hıtay, Maveraünnehir, Harezm, Horasan ve İran'daki Harzemşahlar ile Kafkasya'da Gürcüler, Deşt-i Kıpçak'taki Rus Knezlikleri ve Kıpçaklar ile İdil Bulgarları üzerine gerçekleştirilen seferler sonucunda Pasifik Okyanusu'ndan Hazar Denizi’ne ve Karadeniz'in kuzeyine kadar uzanan bir imparatorluk kurdu.")
-
-
-
-
-
