@@ -65,9 +65,9 @@ def process_bulk_paragraph( data):
     #-------------------------Cleaning finished------------------------------------
 
     if sentence == '':
-        return sentence, ('None','None'), '[dataCleaner, line 62] Error: Sentence is NULL.'
+        return 'None', ('None','None'), '[dataCleaner, line 62] Error: Sentence is NULL.'
     elif '{' in sentence or '}' in sentence or '|' in sentence:
-        return sentence, ('None','None'), '[dataCleaner, line 64] Error: Bracket faulty. There are some cruly brackets in sentence in a wrong way.'
+        return 'None', ('None','None'), '[dataCleaner, line 64] Error: Bracket faulty. There are some cruly brackets in sentence in a wrong way.'
     else:
         return flow(sentence)
 
