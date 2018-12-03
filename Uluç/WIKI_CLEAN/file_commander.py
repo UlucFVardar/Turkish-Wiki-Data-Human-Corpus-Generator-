@@ -80,7 +80,7 @@ class Article():
                 article = OrderedDict()
                 i = 0
                 for tuple_key in dataContains_tuples:
-                    if tuple_key == 'bulk_infoBox' or tuple_key == 'clean_infoBox' or tuple_key == 'clean_paragraph' or tuple_key == 'DA_fields':
+                    if tuple_key == 'bulk_infoBox' or tuple_key == 'clean_infoBox'  or tuple_key == 'DA_fields':
                         article[tuple_key] = json.loads(bulk[i])
                     elif tuple_key == 'text_infoBox':
                         article['bulk_infoBox'] = self.convert_2_json(bulk[i])
