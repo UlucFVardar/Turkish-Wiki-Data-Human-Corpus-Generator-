@@ -2,6 +2,11 @@
 # encoding=utf8  
 # @author: İlkay Devran
 
+'''
+export CLASSPATH=zemberek-full.jar:$CLASSPATH
+javac -cp zemberek-full.jar SentenceSplitter.java
+'''
+
 import sys  
 reload(sys)  
 sys.setdefaultencoding('utf8')
@@ -64,11 +69,21 @@ def process_bulk_paragraph( data):
     #-------------------------Cleaning finished------------------------------------
 
     if sentence == '':
-        return 'None', ('None','None'), '[dataCleaner, line 62] Error: Sentence is NULL.'
+        return 'None-(Error: Sentence is NULL.)'
     elif '{' in sentence or '}' in sentence or '|' in sentence:
-        return 'None', ('None','None'), '[dataCleaner, line 64] Error: Bracket faulty. There are some cruly brackets in sentence in a wrong way.'
+        return 'None-(Error: Bracket faulty[]\{\}| )'
     else:
-        return flow(sentence)
+        return sentence
+
+def generate_and_save_articles_with_santences(inputfile,output_file):
+    # Run Java Program   
+    # output.txt-->[input]--(SentenceSplitter.java)--[output]--> zemberek_output.txt
+    tmpFile = "./temp_zemberek.txt"
+    cmd = "java SentenceSplitter "+ tmpFile + " " + inputfile 
+    os.system(cmd)
+
+    fixZemberekOutput(output_file, tmpFile)
+    os.system('rm ./temp_zemberek.txt')    
 
 def clean_dosya( data):
     try:
@@ -201,45 +216,53 @@ def flow(sentence):
 
 # ----------------------- Sentence Combiner part -----------------------
 
-def fixZemberekOutput(zemberek_output_path):
+def fixZemberekOutput(finalOutput, zemberek_output_path):
     """
-        @szemberek_output_path: output path of SentenceSplitter.java
+        @zemberek_output_path: output path of SentenceSplitter.java
     """
     with open(zemberek_output_path, "r") as f:
-        for line in f:
-            line_parts = line.strip().split('#')
-            first_sentence = line_parts[0]
-            second_sentence = 'None'
-            sentences = {}
-            d_flag = False
-            o_flag = False
-            lngth = len(line_parts)
-            for j, part in enumerate(line_parts):
-                try:
-                    if part.endswith('o.') and o_flag == False:
-                        first_sentence += line_parts[j+1]
-                        o_flag = True
-                    
-                    if d_flag == True:
-                        if o_flag == True:
-                            try:
-                                second_sentence = line_parts[3]
-                            except:
-                                second_sentence = 'None'
+        with open(finalOutput, "w") as wf:
+            
+            for line in f:
+                if line.strip() == '' :
+                    continue
+                line_parts = (line.strip().split('#')[7]).split('@')
+                first_sentence = line_parts[0]
+                second_sentence = 'None'
+                sentences = {}
+                d_flag = False
+                o_flag = False
+                lngth = len(line_parts)
+                for j, part in enumerate(line_parts):
+                    try:
+                        if part.endswith('ö.') and o_flag == False:
+                            first_sentence += line_parts[j+1]
+                            o_flag = True
+                        
+                        if d_flag == True:
+                            if o_flag == True:
+                                try:
+                                    second_sentence = line_parts[3]
+                                except:
+                                    second_sentence = 'None'
+                            else:
+                                try:
+                                    second_sentence = line_parts[2]
+                                except:
+                                    second_sentence = 'None'
+                        
+                        if part.endswith('(d.') and d_flag == False:
+                            first_sentence = line_parts[j] + " " + line_parts[j+1]
+                            d_flag = True
+                    except:
+                        if '(d.' not in part:
+                            first_sentence = line_parts[1]
                         else:
-                            try:
-                                second_sentence = line_parts[2]
-                            except:
-                                second_sentence = 'None'
-                    
-                    if part.endswith('(d.') and d_flag == False:
-                        first_sentence = line_parts[j] + " " + line_parts[j+1]
-                        d_flag = True
-                except:
-                    if '(d.' not in part:
-                        first_sentence = line_parts[1]
-                    else:
-                        first_sentence = 'None-Faulty'
-            #print '\n1. ', first_sentence, '\n2. ',second_sentence, '\n'       
+                            first_sentence = 'None-Faulty'
+                wf.write('#'.join((line.strip().split('#')[:7])) + "#" + first_sentence + "@" + second_sentence +"\n\n\n")
+                #print '\n1. ', first_sentence, '\n2. ',second_sentence, '\n'
+
+            
+            wf.close()       
     f.close()
-    return (first_sentence, second_sentence)
+    

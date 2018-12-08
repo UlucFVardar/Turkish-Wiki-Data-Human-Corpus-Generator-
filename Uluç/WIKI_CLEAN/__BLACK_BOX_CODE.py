@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[3]:
 
 
 from my_logging import my_outputs_and_logging
@@ -88,14 +88,6 @@ dataContains_tuples = ['id','title','infoBox_type','bulk_infoBox','clean_infoBox
 commander.my_tub_file_recorder(log.get_output_path()+'All_Articles_Interested.txt',Analysis_Article.articles,'\n\n\n',dataContains_tuples)
 log.logging('#Total Articles saved successfully ( > Interested ) : '+ str(commander.saved_successfully))
 
-## for each info box type one example is saved
-import json
-examples = Analysis_Article.get_one_example_for_every_infoBox_type()
-for type_,one_example, in examples :
-    log.create_a_file_in_a_folder('InfoBoxType_Examples',type_,json.dumps(one_example, ensure_ascii=False, encoding='utf8',indent=4).encode('utf-8'))
-log.logging('For each info box type one example is saved')
-    
-
 
 # >Data Field Count
 
@@ -114,9 +106,18 @@ Analysis_Article.save_dataField_Analysis(mypath)
 log.logging('All Data Field Countings finished')
 
 
-# In[5]:
+# ---
+# > To generate clean Paragraph
+
+# In[6]:
 
 
+'''
+from my_logging import my_outputs_and_logging
+log = my_outputs_and_logging('BLACK BOX CODE')
+print log.get_output_path()
+log.add_splitter()
+'''
 from file_commander import my_file_commander
 from sapsik_bir_Analyser import Article_Analyser
 commander = my_file_commander()
@@ -129,38 +130,57 @@ articles = commander.my_tub_file_reader(article_path,splitter_patter,dataContain
 Analysis_Article = Article_Analyser(articles)
 
 
-import combiner as Combiner
-rules = Combiner.get_rules('./RULES.txt')
-possible_DAs = Combiner.create_DA_combinations(rules,Analysis_Article.articles)
-save_path = log.get_output_path() + 'Dialog_Acts'
-tried,counter,DA_id = Combiner.save_DAs(save_path,possible_DAs)
+from dataCleaner import process_bulk_paragraph
 
-log.add_splitter()
-log.save_log('DA Convertion',str( '#Tried to convert to DA from infoBox -> '+str(tried) 
-             + '\n#Converted to DA from infoBox -> '+ str(counter) 
-             + '\n#DA saved succesfully -> '+ str(DA_id) ))
-
-
-# In[6]:
+count = 0 
+for i,a in enumerate(Analysis_Article.articles):
+    bulk_paragraph = a.article['bulk_paragraph']
+    clean_paragraph = process_bulk_paragraph(bulk_paragraph)
+    if 'None' not in clean_paragraph:
+        count +=1
+    Analysis_Article.articles[i].article['clean_paragraph'] = clean_paragraph
 
 
 
-from my_logging import my_outputs_and_logging
+### Save for all interested clean data with clean_paragraph
+### TO SAVE
+dataContains_tuples = ['id','title','infoBox_type','bulk_infoBox','clean_infoBox','bulk_paragraph','clean_paragraph']
+commander.my_tub_file_recorder(log.get_output_path()+'All_Articles_Interested_with_clean_paragraph.txt',Analysis_Article.articles,'\n\n\n',dataContains_tuples)
+log.logging('#Total Articles saved successfully ( > Interested + clean_paragraph ) : '+ str(commander.saved_successfully))
+log.logging('#Total Articles saved with clean paragraph successfully ( > Interested + clean_paragraph ) : '+ str(count))
 
-log = my_outputs_and_logging('BLACK BOX CODE')
-#log.save_log('BLACK BOX CODE',u'This Code takes the bulk wiki dump data.\nThen Parse it to end up with possible dialog acts')
 
-print log.get_output_path()
+# ---
+# > To generate sentences
 
-from file_commander import my_file_commander
-from sapsik_bir_Analyser import Article_Analyser
-commander = my_file_commander()
-### TO READ
-article_path = '../<2018-12-01>Outputs-BLACK BOX CODE/All_Articles_Interested.txt'
-splitter_patter = '\n\n\n'
-dataContains_tuples = ['id','title','infoBox_type','bulk_infoBox','clean_infoBox','bulk_paragraph']
-articles = commander.my_tub_file_reader(article_path,splitter_patter,dataContains_tuples)
-Analysis_Article = Article_Analyser(articles)
+# In[4]:
+
+
+from dataCleaner import generate_and_save_articles_with_santences
+
+generate_and_save_articles_with_santences( inputfile = log.get_output_path()+'All_Articles_Interested_with_clean_paragraph.txt',
+                                           output_file = log.get_output_path()+'All_Articles_Interested_with_clean_paragraph_and_sentences.txt')
+
+
+
+
+# ---
+# > Save examples for each type
+
+# In[7]:
+
+
+## for each info box type one example is saved
+import json
+examples = Analysis_Article.get_one_example_for_every_infoBox_type()
+for type_,one_example, in examples :
+    log.create_a_file_in_a_folder('InfoBoxType_Examples',type_,json.dumps(one_example, ensure_ascii=False, encoding='utf8',indent=4).encode('utf-8'))
+log.logging('For each info box type one example is saved')
+    
+
+
+# In[ ]:
+
 
 
 
@@ -171,41 +191,34 @@ Analysis_Article = Article_Analyser(articles)
 
 
 
-# In[26]:
+# In[ ]:
 
 
 
 
 
-# In[13]:
+# In[ ]:
 
 
-type(Analysis_Article.articles[0].article['bulk_paragraph'])
 
 
-# In[33]:
+
+# In[ ]:
 
 
-# -*- coding: UTF-8 -*-
 
-from dataCleaner13 import process_bulk_paragraph, set_environment, clear_environment
 
-# Sample usage of dataCleaner.py
 
-set_environment() # create outputs folder to work in with temporary text files
+# In[ ]:
 
-# process the bulk data
-""" 
-    @sentences: a tuple that includes (first_sentence, second_sentence)
-    @AckMessage: it is a acknowladgement message from dataCleaner.py. You can check if there is a problem by AckMessage to understand problems
-"""
-sentences, AckMessage = process_bulk_paragraph("Cengiz Han (d. 1162 – ö. 18 Ağustos 1227), Moğol komutan, hükümdar ve Moğol İmparatorluğu'nun kurucusudur. Cengiz Han, 13. Yüzyılın başında Orta Asya'daki tüm göçebe bozkır kavimlerini birleştirerek bir ulus haline getirdi ve o ulusu Moğol siyasi kimliği çatısı altında topladı. Dünya tarihinin en büyük askeri dehalarından biri olarak kabul edilen Cengiz Han, hükümdarlığı döneminde 1206-1227 arasında Kuzey Çin'deki Batı Xia ve Jin Hanedanı, Türkistan'daki Kara Hıtay, Maveraünnehir, Harezm, Horasan ve İran'daki Harzemşahlar ile Kafkasya'da Gürcüler, Deşt-i Kıpçak'taki Rus Knezlikleri ve Kıpçaklar ile İdil Bulgarları üzerine gerçekleştirilen seferler sonucunda Pasifik Okyanusu'ndan Hazar Denizi’ne ve Karadeniz'in kuzeyine kadar uzanan bir imparatorluk kurdu.")
 
-print sentences[0] 
-print sentences[1]
-print AckMessage
 
-clear_environment() # clear all temporary files
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:

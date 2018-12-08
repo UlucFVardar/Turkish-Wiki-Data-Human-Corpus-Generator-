@@ -36,21 +36,25 @@ public class SentenceSplitter {
             String line;
             int counter;
             while ((line = br.readLine()) != null) {
+
                 if ("".equals(line.trim()) == false) {
-                    List<String> sentences = simpleSentenceBoundaryDetector(line);
+                    List<String> sentences = simpleSentenceBoundaryDetector(line.split("#")[6]);
+                    pw.print(line+"#");                    
                     counter = 0;
                     int len = sentences.size()-1;
                     for (String sentence : sentences) {
                         if (counter == len) {
                             pw.print(sentence);
                         } else {
-                            pw.print(sentence + "#");
+                            pw.print(sentence + "@");
                         }
                         counter++;
                     }//for end
-                    pw.print("\n");
+                    pw.print("\n\n\n");
+
                 }// if end
-            }
+
+            }// while end
         pw.close();
         } catch (IOException e) {
             System.out.println("ERROR! " + e);
